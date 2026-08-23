@@ -25,11 +25,6 @@ const REPOS = {
     source: 'gitee',
     owner: 'yang-genhao',
     repo: 'tools'
-  },
-  'blog': {
-    source: 'github',
-    owner: 'flechazoyang-google',
-    repo: 'blog'
   }
 };
 
@@ -45,10 +40,21 @@ async function fetchJSON(url) {
 }
 
 async function getLatestGitHubRelease(owner, repo) {
-  const data = await fetchJSON(
-    `https://api.github.com/repos/${owner}/${repo}/releases/latest`
+  try {
+    const data = await fetchJSON(
+      `https://api.github.com/repos/${owner}/${repo}/releases/latest`
+    );
+    if (data.tag_name) return data.tag_name;
+  } catch (_) {}
+
+  const tags = await fetchJSON(
+    `https://api.github.com/repos/${owner}/${repo}/tags?per_page=20`
   );
-  return data.tag_name || data.name || null;
+  if (Array.isArray(tags) && tags.length > 0) {
+    const stable = tags.find(t => !/preview|alpha|beta|rc|dev/i.test(t.name));
+    return (stable || tags[0]).name;
+  }
+  return null;
 }
 
 async function getLatestGiteeRelease(owner, repo) {
