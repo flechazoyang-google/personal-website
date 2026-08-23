@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * update-projects.js
+ * update-projects.js  v1.1
  * 从 GitHub / Gitee API 拉取最新 release 版本，更新 projects.json
  *
  * 用法:
