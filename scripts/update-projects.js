@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * update-projects.js  v1.1
+ * update-projects.js  v1.2
  * 从 GitHub / Gitee API 拉取最新 release 版本，更新 projects.json
  *
  * 用法:
@@ -17,9 +17,11 @@ const PROJECTS_FILE = path.join(__dirname, '..', 'projects.json');
 
 const REPOS = {
   'coc-war': {
-    source: 'github',
-    owner: 'flechazoyang-google',
-    repo: 'coc-war-tool'
+    source: 'gitee',
+    owner: 'yang-genhao',
+    repo: 'coc-war-tool',
+    apkPattern: 'COCtools-{version}.apk',
+    trackPreview: true
   },
   'toolbox': {
     source: 'gitee',
@@ -44,45 +46,70 @@ async function getLatestGitHubRelease(owner, repo) {
     const data = await fetchJSON(
       `https://api.github.com/repos/${owner}/${repo}/releases/latest`
     );
-    if (data.tag_name) return data.tag_name;
+    if (data.tag_name) return { stable: data.tag_name };
   } catch (_) {}
 
   const tags = await fetchJSON(
     `https://api.github.com/repos/${owner}/${repo}/tags?per_page=20`
   );
   if (Array.isArray(tags) && tags.length > 0) {
-    const stable = tags.find(t => !/preview|alpha|beta|rc|dev/i.test(t.name));
-    return (stable || tags[0]).name;
+    const isPreview = t => /preview|alpha|beta|rc|dev/i.test(t.name);
+    const stable = tags.find(t => !isPreview(t));
+    const preview = tags.find(t => isPreview(t));
+    return {
+      stable: stable ? stable.name : null,
+      preview: preview ? preview.name : null
+    };
   }
-  return null;
+  return {};
 }
 
-async function getLatestGiteeRelease(owner, repo) {
+async function getGiteeReleases(owner, repo) {
   const data = await fetchJSON(
-    `https://gitee.com/api/v5/repos/${owner}/${repo}/releases?per_page=1&page=1&direction=desc`
+    `https://gitee.com/api/v5/repos/${owner}/${repo}/releases?per_page=20&page=1&direction=desc`
   );
-  if (Array.isArray(data) && data.length > 0) {
-    return data[0].tag_name || data[0].name || null;
+  if (!Array.isArray(data) || data.length === 0) return {};
+
+  const isPreview = r => /preview|alpha|beta|rc|dev/i.test(r.tag_name || r.name || '');
+  const stable = data.find(r => !isPreview(r));
+  const preview = data.find(r => isPreview(r));
+
+  return {
+    stable: stable ? (stable.tag_name || stable.name) : null,
+    preview: preview ? (preview.tag_name || preview.name) : null
+  };
+}
+
+async function getRepoInfo(source, owner, repo) {
+  if (source === 'github') {
+    const data = await fetchJSON(`https://api.github.com/repos/${owner}/${repo}`);
+    return { stars: data.stargazers_count || 0, language: data.language || null };
   }
-  return null;
-}
-
-async function getGitHubDescription(owner, repo) {
-  const data = await fetchJSON(`https://api.github.com/repos/${owner}/${repo}`);
-  return {
-    description: data.description || null,
-    stars: data.stargazers_count || 0,
-    language: data.language || null
-  };
-}
-
-async function getGiteeDescription(owner, repo) {
   const data = await fetchJSON(`https://gitee.com/api/v5/repos/${owner}/${repo}`);
-  return {
-    description: data.description || null,
-    stars: data.stargazers_count || 0,
-    language: data.language || null
-  };
+  return { stars: data.stargazers_count || 0, language: data.language || null };
+}
+
+function buildDownloadUrl(config, version) {
+  if (!config.apkPattern) return null;
+  const filename = config.apkPattern.replace('{version}', version);
+  return `https://gitee.com/${config.owner}/${config.repo}/releases/download/${version}/${filename}`;
+}
+
+function updateDownloadLinks(project, config, stableVersion, previewVersion) {
+  if (!config.apkPattern) return;
+
+  const stableUrl = buildDownloadUrl(config, stableVersion);
+  const previewUrl = previewVersion ? buildDownloadUrl(config, previewVersion) : null;
+
+  project.links = project.links.map(link => {
+    if (link.label === '下载稳定版' && stableUrl) {
+      return { ...link, url: stableUrl };
+    }
+    if (link.label === '下载体验版' && previewUrl) {
+      return { ...link, url: previewUrl };
+    }
+    return link;
+  });
 }
 
 async function main() {
@@ -109,36 +136,50 @@ async function main() {
     console.log(`📦 ${project.name}`);
 
     try {
-      let latestVersion = null;
+      let versions = {};
       let repoInfo = null;
 
+      console.log(`   ${config.source}: ${config.owner}/${config.repo}`);
+
       if (config.source === 'github') {
-        console.log(`   GitHub: ${config.owner}/${config.repo}`);
-        latestVersion = await getLatestGitHubRelease(config.owner, config.repo);
-        repoInfo = await getGitHubDescription(config.owner, config.repo);
-      } else if (config.source === 'gitee') {
-        console.log(`   Gitee: ${config.owner}/${config.repo}`);
-        latestVersion = await getLatestGiteeRelease(config.owner, config.repo);
-        repoInfo = await getGiteeDescription(config.owner, config.repo);
+        versions = await getLatestGitHubRelease(config.owner, config.repo);
+      } else {
+        versions = await getGiteeReleases(config.owner, config.repo);
       }
 
-      if (latestVersion && latestVersion !== project.version) {
-        console.log(`   🔄 版本更新: ${project.version} → ${latestVersion}`);
-        project.version = latestVersion;
-        changes.push(`${project.name}: ${latestVersion}`);
-      } else if (latestVersion) {
-        console.log(`   ✅ 版本已是最新: ${latestVersion}`);
-      } else {
+      repoInfo = await getRepoInfo(config.source, config.owner, config.repo);
+
+      if (versions.stable) {
+        if (versions.stable !== project.version) {
+          console.log(`   🔄 稳定版: ${project.version} → ${versions.stable}`);
+          project.version = versions.stable;
+          changes.push(`${project.name} 稳定版: ${versions.stable}`);
+        } else {
+          console.log(`   ✅ 稳定版已是最新: ${versions.stable}`);
+        }
+      }
+
+      if (config.trackPreview && versions.preview) {
+        if (versions.preview !== project.previewVersion) {
+          console.log(`   🔄 预览版: ${project.previewVersion || '无'} → ${versions.preview}`);
+          project.previewVersion = versions.preview;
+          changes.push(`${project.name} 预览版: ${versions.preview}`);
+        } else {
+          console.log(`   ✅ 预览版已是最新: ${versions.preview}`);
+        }
+      }
+
+      if (versions.stable) {
+        updateDownloadLinks(project, config, versions.stable, config.trackPreview ? versions.preview : null);
+      }
+
+      if (!versions.stable) {
         console.log(`   ⚠️  未找到 release 信息`);
       }
 
       if (repoInfo) {
-        if (repoInfo.stars !== undefined) {
-          console.log(`   ⭐ Stars: ${repoInfo.stars}`);
-        }
-        if (repoInfo.language) {
-          console.log(`   💻 语言: ${repoInfo.language}`);
-        }
+        console.log(`   ⭐ Stars: ${repoInfo.stars}`);
+        if (repoInfo.language) console.log(`   💻 语言: ${repoInfo.language}`);
       }
     } catch (err) {
       console.error(`   ❌ 获取失败: ${err.message}`);

@@ -42,6 +42,28 @@
     padding:1px 6px;font-family:monospace;font-size:10px;}
 </style>
 
+<style>
+  .project-version-preview{
+    font-size:0.75em;opacity:0.7;
+    background:rgba(255,165,0,0.15);color:#e67e00;
+    padding:2px 8px;border-radius:4px;margin-left:6px;
+    border:1px dashed rgba(230,126,0,0.4);
+  }
+  .download-link{
+    background:linear-gradient(135deg,#4CAF50,#45a049)!important;
+    color:#fff!important;padding:6px 14px!important;border-radius:6px!important;
+    text-decoration:none!important;border:none!important;
+    font-weight:600;font-size:0.85em!important;letter-spacing:0.02em!important;
+    box-shadow:0 2px 8px rgba(76,175,80,0.3);
+    transition:transform .2s,box-shadow .2s;
+  }
+  .download-link:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(76,175,80,0.4)!important;
+  }
+  .download-link::before{content:"⬇ ";font-size:0.9em;}
+</style>
+
 <!-- ============ Theme 01: 极简主义 ============ -->
 <style data-theme="01">
   :root{--ink:#1a1a1a;--gray:#8a8a8a;--line:#e5e5e5;--paper:#ffffff;--accent:#c2410c;}
@@ -801,6 +823,21 @@
     return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
   }
 
+  function versionBadge(p) {
+    let html = `<span class="project-version">${p.version}</span>`;
+    if (p.previewVersion) {
+      html += ` <span class="project-version-preview">${p.previewVersion}</span>`;
+    }
+    return html;
+  }
+
+  function linksHtml(p) {
+    return p.links.map(l => {
+      const cls = l.download ? ' class="download-link"' : '';
+      return `<a href="${l.url}"${cls} target="_blank">${l.label}</a>`;
+    }).join('');
+  }
+
   function renderProjects(d) {
     document.querySelectorAll('[data-bind="projects"]').forEach(container => {
       container.innerHTML = '';
@@ -812,11 +849,11 @@
         if (theme === '06') {
           card.innerHTML = `<div class="section-header"><h2 class="section-title">「${p.name}」</h2><span class="tag">${p.type}</span></div><div class="project-desc"><p class="lead">${p.description}</p></div><div class="project-tech">${p.tech.map(t => `<span>${t.toUpperCase()}</span>`).join('')}</div>`;
         } else if (theme === '08') {
-          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version}</span></div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${p.links.map(l => `<a href="${l.url}" target="_blank">${l.label}</a>`).join('')}</div>`;
+          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version}</span>${p.previewVersion ? ` <span class="val preview">preview:</span> <span class="val">${p.previewVersion}</span>` : ''}</div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
         } else if (theme === '10') {
-          card.innerHTML = `<h3 class="project-title">${p.name} <span class="project-version">${p.version.toUpperCase()}</span></h3><div class="project-meta">${p.type.toUpperCase()}</div><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${p.links.map(l => `<a href="${l.url}" target="_blank">${l.label} →</a>`).join('')}</div>`;
+          card.innerHTML = `<h3 class="project-title">${p.name} ${versionBadge(p)}</h3><div class="project-meta">${p.type.toUpperCase()}</div><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
         } else {
-          card.innerHTML = `<div class="project-icon">${icon}</div><h3 class="project-title">${p.name} <span class="project-version">${p.version}</span></h3><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${p.links.map(l => `<a href="${l.url}" target="_blank">${l.label}</a>`).join('')}</div>`;
+          card.innerHTML = `<div class="project-icon">${icon}</div><h3 class="project-title">${p.name} ${versionBadge(p)}</h3><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
         }
         container.appendChild(card);
       });
@@ -867,7 +904,7 @@
 
     const aboutStats = document.querySelector('[data-bind="about-stats"]');
     if (aboutStats) {
-      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${d.projects[0].version.toUpperCase()}</b></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${d.projects[1].version.toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
+      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${d.projects[0].version.toUpperCase()}</b><small style="opacity:.6;font-size:10px">预览: ${d.projects[0].previewVersion || '无'}</small></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${d.projects[1].version.toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
     }
 
     const links = document.querySelector('[data-bind="links"]');

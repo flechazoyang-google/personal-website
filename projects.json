@@ -13,6 +13,7 @@
       "id": "coc-war",
       "name": "COC 部落战数据管理工具",
       "version": "v4.6",
+      "previewVersion": "v4.7.1-preview",
       "type": "Android App",
       "description": "面向部落冲突（Clash of Clans）首领与管理的战报分析应用。粘贴 JSON 战报即可自动匹配花名册，统计三星率与参战率，未进攻成员一目了然；支持 WebDAV（坚果云）云端备份，换机不丢数据。",
       "tech": [
@@ -24,8 +25,22 @@
       ],
       "links": [
         {
-          "label": "查看源码",
-          "url": "https://github.com/flechazoyang-google"
+          "label": "GitHub 仓库",
+          "url": "https://github.com/flechazoyang-google/coc-war-tool"
+        },
+        {
+          "label": "Gitee 仓库",
+          "url": "https://gitee.com/yang-genhao/coc-war-tool"
+        },
+        {
+          "label": "下载稳定版",
+          "url": "https://gitee.com/yang-genhao/coc-war-tool/releases/download/v4.6/COCtools-v4.6.apk",
+          "download": true
+        },
+        {
+          "label": "下载体验版",
+          "url": "https://gitee.com/yang-genhao/coc-war-tool/releases/download/v4.7.1-preview/COCtools-v4.7.1-preview.apk",
+          "download": true
         }
       ]
     },
