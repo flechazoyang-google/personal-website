@@ -1,0 +1,72 @@
+{
+  "site": {
+    "name": "妄司逸",
+    "alias": "flechazo",
+    "title": "Android Developer",
+    "tagline": "学无止尽",
+    "quote": "种一棵树最好的时间是十年前，其次是现在。",
+    "email": "flechazo@example.com",
+    "year": 2026
+  },
+  "projects": [
+    {
+      "id": "coc-war",
+      "name": "COC 部落战数据管理工具",
+      "version": "v3.8",
+      "type": "Android App",
+      "description": "面向部落冲突（Clash of Clans）首领与管理的战报分析应用。粘贴 JSON 战报即可自动匹配花名册，统计三星率与参战率，未进攻成员一目了然；支持 WebDAV（坚果云）云端备份，换机不丢数据。",
+      "tech": ["Kotlin", "Jetpack Compose", "Room", "MVVM", "WebDAV"],
+      "links": [
+        {
+          "label": "查看源码",
+          "url": "https://github.com/flechazoyang-google"
+        }
+      ]
+    },
+    {
+      "id": "toolbox",
+      "name": "Toolbox 工具箱",
+      "version": "v1.4.4",
+      "type": "Android App",
+      "description": "一款集成 17 种日常工具的 Android 应用：计算器、汇率换算、IP 属地查询、倒数日与纪念日、加密密码箱、九宫格切图、番茄钟、拼豆图纸、Base64、二维码、亲戚称呼计算、经期记录、去水印加水印……常用的小工具，一个 App 全部收好。",
+      "tech": ["Kotlin", "Compose + Material3", "Hilt", "Retrofit", "Room"],
+      "links": [
+        {
+          "label": "查看源码",
+          "url": "https://gitee.com/yang-genhao/tools"
+        },
+        {
+          "label": "下载",
+          "url": "https://gitee.com/yang-genhao/tools/releases"
+        }
+      ]
+    },
+    {
+      "id": "blog",
+      "name": "妄司逸的博客",
+      "version": "Hexo",
+      "type": "Blog",
+      "description": "用 Hexo 从零搭起的技术博客，记录学习路上的构建过程与踩坑笔记：十大排序算法、AI Agent 实践、Linux 与 Windows 命令对比、Scala 编程、Hexo 插件与域名部署。副标题是「学无止尽」。",
+      "tech": ["Hexo", "Markdown", "博客部署", "域名 · HTTPS"],
+      "links": [
+        {
+          "label": "访问博客",
+          "url": "https://blog.flechazo.icu"
+        }
+      ]
+    }
+  ],
+  "about": {
+    "intro": "你好，我是妄司逸（flechazo）。一个把业余时间花在写代码和写博客上的 Android 开发者。",
+    "philosophy": "比起华丽的框架，我更在意产品是否真正好用：工具不联网也能工作，数据永远属于用户自己。",
+    "principles": ["简单", "私有", "好看"]
+  },
+  "stats": {
+    "apps": "02",
+    "appsLabel": "Android 应用",
+    "tools": "17",
+    "toolsLabel": "工具箱内置工具",
+    "blog": "ONLINE",
+    "blogLabel": "博客持续更新"
+  }
+}
