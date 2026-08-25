@@ -55,7 +55,33 @@
   .dl-menu button:not(.active)::before{content:"";width:10px;}
   .dl-menu .dl-ch{font-size:9px;color:var(--gray);font-family:monospace;margin-left:auto;}
   @keyframes dlSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
-  @media(max-width:720px){.wrap{padding:0 24px;}.hero-section{padding:80px 0 60px;}.hero-title{font-size:34px;}.nav-links a{margin-left:16px;}.project-card{grid-template-columns:1fr;}}
+  @media(max-width:720px){
+    .wrap{padding:0 20px;}
+    .site-header{padding:20px 0;}
+    .logo{font-size:13px;letter-spacing:.2em;}
+    .nav-links a{font-size:11px;margin-left:16px;}
+    .hero-section{padding:60px 0 40px;}
+    .hero-eyebrow{font-size:10px;letter-spacing:.3em;margin-bottom:20px;}
+    .hero-title{font-size:28px;letter-spacing:.04em;}
+    .hero-subtitle{font-size:13px;margin-top:18px;}
+    .hero-stats{gap:24px;margin-top:28px;font-size:11px;flex-wrap:wrap;}
+    .hero-stats span b{font-size:18px;}
+    section{padding:40px 0;}
+    .section-header{margin-bottom:28px;flex-direction:column;gap:4px;}
+    .section-title{font-size:20px;}
+    .section-num{font-size:10px;}
+    .project-card{padding:24px 0;gap:6px 8px;}
+    .project-card:hover{padding-left:0;}
+    .project-title{font-size:18px;}
+    .project-desc{font-size:13px;margin-top:10px;}
+    .project-tech{margin-top:10px;gap:6px;}
+    .project-tech span{font-size:10px;padding:3px 10px;}
+    .project-links{margin-top:10px;gap:14px 6px;}
+    .project-links a{margin-right:0;font-size:12px;}
+    .dl-widget{margin-left:0;margin-top:2px;}
+    .about-text p{font-size:13px;}
+    .site-footer{flex-direction:column;gap:8px;padding:28px 0 40px;font-size:10px;text-align:center;}
+  }
 </style>
 </head>
 <body>
