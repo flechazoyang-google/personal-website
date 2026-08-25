@@ -16,13 +16,6 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const PROJECTS_FILE = path.join(__dirname, '..', 'projects.json');
 
 const REPOS = {
-  'coc-war': {
-    source: 'gitee',
-    owner: 'yang-genhao',
-    repo: 'coc-war-tool',
-    apkPattern: 'COCtools-{version}.apk',
-    trackPreview: true
-  },
   'toolbox': {
     source: 'gitee',
     owner: 'yang-genhao',
@@ -89,29 +82,6 @@ async function getRepoInfo(source, owner, repo) {
   return { stars: data.stargazers_count || 0, language: data.language || null };
 }
 
-function buildDownloadUrl(config, version) {
-  if (!config.apkPattern) return null;
-  const filename = config.apkPattern.replace('{version}', version);
-  return `https://gitee.com/${config.owner}/${config.repo}/releases/download/${version}/${filename}`;
-}
-
-function updateDownloadLinks(project, config, stableVersion, previewVersion) {
-  if (!config.apkPattern) return;
-
-  const stableUrl = buildDownloadUrl(config, stableVersion);
-  const previewUrl = previewVersion ? buildDownloadUrl(config, previewVersion) : null;
-
-  project.links = project.links.map(link => {
-    if (link.label === '下载稳定版' && stableUrl) {
-      return { ...link, url: stableUrl };
-    }
-    if (link.label === '下载体验版' && previewUrl) {
-      return { ...link, url: previewUrl };
-    }
-    return link;
-  });
-}
-
 async function main() {
   console.log(DRY_RUN ? '[DRY RUN] 模式，不会写入文件\n' : '');
   console.log('=== 开始更新 projects.json ===\n');
@@ -157,20 +127,6 @@ async function main() {
         } else {
           console.log(`   ✅ 稳定版已是最新: ${versions.stable}`);
         }
-      }
-
-      if (config.trackPreview && versions.preview) {
-        if (versions.preview !== project.previewVersion) {
-          console.log(`   🔄 预览版: ${project.previewVersion || '无'} → ${versions.preview}`);
-          project.previewVersion = versions.preview;
-          changes.push(`${project.name} 预览版: ${versions.preview}`);
-        } else {
-          console.log(`   ✅ 预览版已是最新: ${versions.preview}`);
-        }
-      }
-
-      if (versions.stable) {
-        updateDownloadLinks(project, config, versions.stable, config.trackPreview ? versions.preview : null);
       }
 
       if (!versions.stable) {

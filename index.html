@@ -830,7 +830,7 @@
   }
 
   function versionBadge(p) {
-    let html = `<span class="project-version">${p.version}</span>`;
+    let html = `<span class="project-version">${p.version || '未知'}</span>`;
     if (p.previewVersion) {
       html += ` <span class="project-version-preview">${p.previewVersion}</span>`;
     }
@@ -855,7 +855,7 @@
         if (theme === '06') {
           card.innerHTML = `<div class="section-header"><h2 class="section-title">「${p.name}」</h2><span class="tag">${p.type}</span></div><div class="project-desc"><p class="lead">${p.description}</p></div><div class="project-tech">${p.tech.map(t => `<span>${t.toUpperCase()}</span>`).join('')}</div>`;
         } else if (theme === '08') {
-          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version}</span>${p.previewVersion ? ` <span class="val preview">preview:</span> <span class="val">${p.previewVersion}</span>` : ''}</div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
+          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version || '未知'}</span>${p.previewVersion ? ` <span class="val preview">preview:</span> <span class="val">${p.previewVersion}</span>` : ''}</div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
         } else if (theme === '10') {
           card.innerHTML = `<h3 class="project-title">${p.name} ${versionBadge(p)}</h3><div class="project-meta">${p.type.toUpperCase()}</div><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
         } else {
@@ -910,7 +910,7 @@
 
     const aboutStats = document.querySelector('[data-bind="about-stats"]');
     if (aboutStats) {
-      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${d.projects[0].version.toUpperCase()}</b><small style="opacity:.6;font-size:10px">预览: ${d.projects[0].previewVersion || '无'}</small></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${d.projects[1].version.toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
+      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${(d.projects[0].version || '未知').toUpperCase()}</b><small style="opacity:.6;font-size:10px">预览: ${d.projects[0].previewVersion || '无'}</small></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${(d.projects[1].version || '未知').toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
     }
 
     const links = document.querySelector('[data-bind="links"]');
@@ -920,7 +920,7 @@
 
     const termProj = document.querySelector('[data-bind="projects-terminal"]');
     if (termProj) {
-      termProj.innerHTML = d.projects.map(p => `<p class="out">drwxr-xr-x  flechazo  dev   <span class="ok">${p.id}</span> <span class="err">[${p.version}]</span>    ${p.description.substring(0, 20)}...</p>`).join('');
+      termProj.innerHTML = d.projects.map(p => `<p class="out">drwxr-xr-x  flechazo  dev   <span class="ok">${p.id}</span> <span class="err">[${p.version || '未知'}]</span>    ${p.description.substring(0, 20)}...</p>`).join('');
     }
 
     const aboutTerm = document.querySelector('[data-bind="about-terminal"]');
@@ -976,10 +976,31 @@
     }
   });
 
-  fetch('projects.json')
-    .then(r => r.json())
-    .then(d => { data = d; renderAll(d); apply(current, false); if (firstVisit) document.getElementById('sw').classList.add('sw-open'); })
-    .catch(err => { console.error('Failed to load projects.json:', err); apply(current, false); });
+  const CDN_RELEASE = 'https://cdn.flechazo.icu/release.json';
+
+  function mergeRelease(d, release) {
+    const coc = d.projects.find(p => p.id === 'coc-war');
+    if (!coc || !release) return;
+    if (release.stable) {
+      coc.version = release.stable.version;
+      coc.links.push({ label: '下载稳定版', url: release.stable.url, download: true });
+    }
+    if (release.preview) {
+      coc.previewVersion = release.preview.version;
+      coc.links.push({ label: '下载体验版', url: release.preview.url, download: true });
+    }
+  }
+
+  Promise.all([
+    fetch('projects.json').then(r => r.json()),
+    fetch(CDN_RELEASE).then(r => r.json()).catch(() => null)
+  ]).then(([d, release]) => {
+    mergeRelease(d, release);
+    data = d;
+    renderAll(d);
+    apply(current, false);
+    if (firstVisit) document.getElementById('sw').classList.add('sw-open');
+  }).catch(err => { console.error('Failed to load data:', err); apply(current, false); });
 })();
 </script>
 </body>
