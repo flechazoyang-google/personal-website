@@ -993,16 +993,17 @@
 
   function mergeRelease(d, release) {
     const coc = d.projects.find(p => p.id === 'coc-war');
-    if (!coc || !release || !release.versions || !release.versions.length) return;
-    coc.version = release.versions[0].version;
-    const channelLabel = v => {
-      if (/alpha/i.test(v)) return 'Alpha';
-      if (/beta/i.test(v)) return 'Beta';
-      if (/rc/i.test(v)) return 'RC';
-      return '正式版';
-    };
-    release.versions.forEach(v => {
-      coc.links.push({ label: `${channelLabel(v.version)} ${v.version}`, url: v.url, download: true });
+    if (!coc || !release) return;
+    const channels = [
+      { key: 'stable', label: '正式版' },
+      { key: 'rc', label: 'RC' },
+      { key: 'beta', label: 'Beta' },
+      { key: 'alpha', label: 'Alpha' }
+    ];
+    if (release.stable) coc.version = release.stable.version;
+    channels.forEach(ch => {
+      const r = release[ch.key];
+      if (r) coc.links.push({ label: `${ch.label} ${r.version}`, url: r.url, download: true });
     });
   }
 
