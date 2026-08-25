@@ -38,23 +38,22 @@
   .project-links a:hover{color:var(--ink);border-color:var(--ink);}
   .about-text p{font-size:14px;color:#555;max-width:640px;margin-bottom:18px;}
   .site-footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:11px;letter-spacing:.25em;color:var(--gray);display:flex;justify-content:space-between;}
-  .dl-widget{display:inline-flex;align-items:stretch;border:1px solid var(--accent);border-radius:8px;position:relative;margin-left:10px;vertical-align:top;}
-  .dl-main{display:flex;flex-direction:column;align-items:flex-start;padding:8px 14px;background:none;border:none;color:var(--ink);cursor:pointer;font:inherit;min-width:76px;transition:background .2s;}
-  .dl-main:hover{background:rgba(194,65,12,.06);}
-  .dl-label{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.15em;line-height:1.2;}
-  .dl-ver{font-size:10px;color:var(--gray);margin-top:3px;font-family:monospace;white-space:nowrap;}
-  .dl-sep{width:1px;background:var(--line);margin:8px 0;}
-  .dl-toggle{display:flex;align-items:center;justify-content:center;width:28px;background:none;border:none;color:var(--gray);cursor:pointer;font-size:8px;transition:background .2s,color .2s;}
-  .dl-toggle:hover{background:rgba(194,65,12,.06);color:var(--accent);}
-  .dl-menu{display:none;position:absolute;top:calc(100% + 6px);left:-1px;right:-1px;border:1px solid var(--line);border-radius:8px;background:var(--paper);box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:100;overflow:hidden;}
+  .dl-widget{display:inline-flex;align-items:flex-start;gap:4px;position:relative;margin-left:10px;vertical-align:bottom;}
+  .dl-btn{background:none;border:none;padding:0;cursor:pointer;text-align:left;font:inherit;}
+  .dl-btn:hover .dl-label{color:var(--ink);}
+  .dl-label{display:block;font-size:12px;letter-spacing:.2em;color:var(--accent);border-bottom:1px solid var(--accent);padding-bottom:2px;transition:color .3s,border-color .3s;white-space:nowrap;}
+  .dl-ver{display:block;font-family:monospace;font-size:10px;color:var(--gray);margin-top:4px;white-space:nowrap;}
+  .dl-toggle{background:none;border:none;color:var(--gray);cursor:pointer;font-size:8px;padding:4px 2px;transition:color .2s;}
+  .dl-toggle:hover{color:var(--accent);}
+  .dl-menu{display:none;position:absolute;top:100%;left:0;margin-top:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);box-shadow:0 6px 20px rgba(0,0,0,.08);z-index:100;overflow:hidden;min-width:150px;}
   .dl-menu.open{display:block;animation:dlSlide .15s ease-out;}
-  .dl-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;border:none;background:none;color:var(--ink);font:inherit;font-size:12px;cursor:pointer;text-align:left;transition:background .15s;}
+  .dl-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border:none;background:none;color:var(--ink);font:inherit;font-size:12px;cursor:pointer;text-align:left;transition:background .15s;}
   .dl-menu button:hover{background:rgba(194,65,12,.05);}
   .dl-menu button.active{color:var(--accent);font-weight:600;}
   .dl-menu button.active::before{content:"✓";font-size:10px;}
   .dl-menu button:not(.active)::before{content:"";width:10px;}
   .dl-menu .dl-ch{font-size:9px;color:var(--gray);font-family:monospace;margin-left:auto;}
-  @keyframes dlSlide{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes dlSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
   @media(max-width:720px){.wrap{padding:0 24px;}.hero-section{padding:80px 0 60px;}.hero-title{font-size:34px;}.nav-links a{margin-left:16px;}.project-card{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -104,7 +103,7 @@
       const ch = d.label.match(/^(正式版|RC|Beta|Alpha)/)?.[1] || '';
       return `<button data-url="${d.url}" data-ver="${ver}" class="${i === 0 ? 'active' : ''}"><span>${ver}</span><span class="dl-ch">${ch}</span></button>`;
     }).join('');
-    return `<div class="dl-widget"><button class="dl-main" data-url="${first.url}"><span class="dl-label">下载</span><span class="dl-ver">${firstVer}</span></button><div class="dl-sep"></div><button class="dl-toggle">▼</button><div class="dl-menu">${menuHtml}</div></div>`;
+    return `<div class="dl-widget"><button class="dl-btn" data-url="${first.url}"><span class="dl-label">下载</span><span class="dl-ver">${firstVer}</span></button><button class="dl-toggle">▼</button><div class="dl-menu">${menuHtml}</div></div>`;
   }
 
   document.addEventListener('click', e => {
@@ -124,16 +123,16 @@
     const item = e.target.closest('.dl-menu button');
     if (item) {
       e.stopPropagation();
-      widget.querySelector('.dl-main').dataset.url = item.dataset.url;
+      widget.querySelector('.dl-btn').dataset.url = item.dataset.url;
       widget.querySelector('.dl-ver').textContent = item.dataset.ver;
       widget.querySelectorAll('.dl-menu button').forEach(b => b.classList.remove('active'));
       item.classList.add('active');
       widget.querySelector('.dl-menu').classList.remove('open');
       return;
     }
-    if (e.target.closest('.dl-main')) {
+    if (e.target.closest('.dl-btn')) {
       e.preventDefault();
-      window.open(widget.querySelector('.dl-main').dataset.url, '_blank');
+      window.open(widget.querySelector('.dl-btn').dataset.url, '_blank');
     }
   });
 
