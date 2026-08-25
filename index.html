@@ -56,6 +56,11 @@
     content:"⬇";position:absolute;left:0.3em;top:50%;transform:translateY(-50%);
     font-size:0.8em;opacity:0.7;
   }
+  .download-select{
+    font:inherit;font-size:13px;padding:5px 10px;border-radius:6px;
+    border:1px solid currentColor;background:transparent;color:inherit;
+    cursor:pointer;margin-left:6px;
+  }
 </style>
 
 <!-- ============ Theme 01: 极简主义 ============ -->
@@ -830,18 +835,25 @@
   }
 
   function versionBadge(p) {
-    let html = `<span class="project-version">${p.version || '未知'}</span>`;
-    if (p.previewVersion) {
-      html += ` <span class="project-version-preview">${p.previewVersion}</span>`;
-    }
-    return html;
+    return `<span class="project-version">${p.version || '未知'}</span>`;
   }
 
   function linksHtml(p) {
-    return p.links.map(l => {
-      const cls = l.download ? ' class="download-link"' : '';
-      return `<a href="${l.url}"${cls} target="_blank">${l.label}</a>`;
+    return p.links.filter(l => !l.download).map(l => {
+      return `<a href="${l.url}" target="_blank">${l.label}</a>`;
     }).join('');
+  }
+
+  function downloadDropdown(p) {
+    const downloads = (p.links || []).filter(l => l.download);
+    if (!downloads.length) return '';
+    let html = '<select class="download-select" onchange="if(this.value){window.open(this.value,\'_blank\')}this.selectedIndex=0">';
+    html += '<option value="" disabled selected>下载版本</option>';
+    downloads.forEach(d => {
+      html += `<option value="${d.url}">${d.label}</option>`;
+    });
+    html += '</select>';
+    return html;
   }
 
   function renderProjects(d) {
@@ -853,13 +865,13 @@
         card.className = 'project-card';
         const icon = ICONS[p.id] || '📦';
         if (theme === '06') {
-          card.innerHTML = `<div class="section-header"><h2 class="section-title">「${p.name}」</h2><span class="tag">${p.type}</span></div><div class="project-desc"><p class="lead">${p.description}</p></div><div class="project-tech">${p.tech.map(t => `<span>${t.toUpperCase()}</span>`).join('')}</div>`;
+          card.innerHTML = `<div class="section-header"><h2 class="section-title">「${p.name}」</h2><span class="tag">${p.type}</span></div><div class="project-desc"><p class="lead">${p.description}</p></div><div class="project-tech">${p.tech.map(t => `<span>${t.toUpperCase()}</span>`).join('')}</div><div class="project-links">${linksHtml(p)} ${downloadDropdown(p)}</div>`;
         } else if (theme === '08') {
-          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version || '未知'}</span>${p.previewVersion ? ` <span class="val preview">preview:</span> <span class="val">${p.previewVersion}</span>` : ''}</div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
+          card.innerHTML = `<div class="divider">▸ <b>${p.name}</b></div><div class="project-title">${p.name}</div><div class="project-desc">${p.description}</div><div class="project-kv"><b>version:</b> <span class="val">${p.version || '未知'}</span></div><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)} ${downloadDropdown(p)}</div>`;
         } else if (theme === '10') {
-          card.innerHTML = `<h3 class="project-title">${p.name} ${versionBadge(p)}</h3><div class="project-meta">${p.type.toUpperCase()}</div><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
+          card.innerHTML = `<h3 class="project-title">${p.name} ${versionBadge(p)}</h3><div class="project-meta">${p.type.toUpperCase()}</div><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)} ${downloadDropdown(p)}</div>`;
         } else {
-          card.innerHTML = `<div class="project-icon">${icon}</div><h3 class="project-title">${p.name} ${versionBadge(p)}</h3><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)}</div>`;
+          card.innerHTML = `<div class="project-icon">${icon}</div><h3 class="project-title">${p.name} ${versionBadge(p)}</h3><p class="project-desc">${p.description}</p><div class="project-tech">${p.tech.map(t => `<span>${t}</span>`).join('')}</div><div class="project-links">${linksHtml(p)} ${downloadDropdown(p)}</div>`;
         }
         container.appendChild(card);
       });
@@ -910,7 +922,8 @@
 
     const aboutStats = document.querySelector('[data-bind="about-stats"]');
     if (aboutStats) {
-      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${(d.projects[0].version || '未知').toUpperCase()}</b><small style="opacity:.6;font-size:10px">预览: ${d.projects[0].previewVersion || '无'}</small></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${(d.projects[1].version || '未知').toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
+      const cocPreReleases = (d.projects[0].links || []).filter(l => l.download).length - 1;
+      aboutStats.innerHTML = `<div class="about-stat"><span>COC 部落战工具</span><b class="n">${(d.projects[0].version || '未知').toUpperCase()}</b><small style="opacity:.6;font-size:10px">${cocPreReleases > 0 ? cocPreReleases + ' 个预发布版本' : '稳定版'}</small></div><div class="about-stat"><span>Toolbox 工具箱</span><b class="n">${(d.projects[1].version || '未知').toUpperCase()}</b></div><div class="about-stat"><span>技术博客</span><b class="n">ONLINE</b></div><div class="about-stat"><span>工具箱内置工具</span><b class="n">${d.stats.tools} 种</b></div>`;
     }
 
     const links = document.querySelector('[data-bind="links"]');
@@ -980,15 +993,17 @@
 
   function mergeRelease(d, release) {
     const coc = d.projects.find(p => p.id === 'coc-war');
-    if (!coc || !release) return;
-    if (release.stable) {
-      coc.version = release.stable.version;
-      coc.links.push({ label: '下载稳定版', url: release.stable.url, download: true });
-    }
-    if (release.preview) {
-      coc.previewVersion = release.preview.version;
-      coc.links.push({ label: '下载体验版', url: release.preview.url, download: true });
-    }
+    if (!coc || !release || !release.versions || !release.versions.length) return;
+    coc.version = release.versions[0].version;
+    const channelLabel = v => {
+      if (/alpha/i.test(v)) return 'Alpha';
+      if (/beta/i.test(v)) return 'Beta';
+      if (/rc/i.test(v)) return 'RC';
+      return '正式版';
+    };
+    release.versions.forEach(v => {
+      coc.links.push({ label: `${channelLabel(v.version)} ${v.version}`, url: v.url, download: true });
+    });
   }
 
   Promise.all([
