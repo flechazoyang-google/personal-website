@@ -2,12 +2,15 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
 <title>妄司逸 · 作品集</title>
 <style>
   :root{--ink:#1a1a1a;--gray:#8a8a8a;--line:#e5e5e5;--paper:#ffffff;--accent:#c2410c;}
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--paper);color:var(--ink);font-family:"Noto Serif SC","Songti SC","SimSun",serif;line-height:1.9;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:"Noto Serif SC","Songti SC","SimSun",serif;line-height:1.9;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;}
+  a,button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   .wrap{max-width:900px;margin:0 auto;padding:0 48px;}
   .site-header{display:flex;justify-content:space-between;align-items:center;padding:28px 0;border-bottom:1px solid var(--line);}
   .logo{font-size:15px;letter-spacing:.35em;font-weight:700;}
@@ -55,33 +58,56 @@
   .dl-menu button:not(.active)::before{content:"";width:10px;}
   .dl-menu .dl-ch{font-size:9px;color:var(--gray);font-family:monospace;margin-left:auto;}
   @keyframes dlSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+  @media(hover:none){
+    .project-card:hover{padding-left:0;}
+    .project-card:hover .project-title{color:var(--ink);}
+    .nav-links a:hover{color:var(--gray);}
+    .project-links a:hover{color:var(--accent);border-color:var(--accent);}
+    .dl-btn:hover .dl-label{color:var(--accent);}
+    .dl-toggle:hover{color:var(--gray);}
+    .dl-menu button:hover{background:none;}
+  }
   @media(max-width:720px){
     .wrap{padding:0 20px;}
-    .site-header{padding:20px 0;}
-    .logo{font-size:13px;letter-spacing:.2em;}
-    .nav-links a{font-size:11px;margin-left:16px;}
-    .hero-section{padding:60px 0 40px;}
-    .hero-eyebrow{font-size:10px;letter-spacing:.3em;margin-bottom:20px;}
-    .hero-title{font-size:28px;letter-spacing:.04em;}
-    .hero-subtitle{font-size:13px;margin-top:18px;}
-    .hero-stats{gap:24px;margin-top:28px;font-size:11px;flex-wrap:wrap;}
-    .hero-stats span b{font-size:18px;}
-    section{padding:40px 0;}
-    .section-header{margin-bottom:28px;flex-direction:column;gap:4px;}
+    .site-header{padding:18px 0;}
+    .logo{font-size:13px;letter-spacing:.18em;}
+    .nav-links a{font-size:11px;margin-left:14px;letter-spacing:.12em;}
+    .hero-section{padding:52px 0 36px;}
+    .hero-eyebrow{font-size:10px;letter-spacing:.28em;margin-bottom:18px;}
+    .hero-title{font-size:27px;letter-spacing:.03em;line-height:1.5;}
+    .hero-subtitle{font-size:13px;margin-top:16px;line-height:1.8;}
+    .hero-stats{flex-direction:column;align-items:flex-start;gap:14px;margin-top:26px;}
+    .hero-stats span b{font-size:17px;margin-top:2px;}
+    section{padding:36px 0;}
+    .section-header{margin-bottom:24px;flex-direction:column;align-items:flex-start;gap:6px;}
     .section-title{font-size:20px;}
     .section-num{font-size:10px;}
-    .project-card{padding:24px 0;gap:6px 8px;}
-    .project-card:hover{padding-left:0;}
-    .project-title{font-size:18px;}
-    .project-desc{font-size:13px;margin-top:10px;}
+    .project-card{padding:22px 0;gap:6px 8px;transition:none;}
+    .project-title{font-size:17px;}
+    .project-desc{font-size:13.5px;margin-top:8px;line-height:1.85;}
     .project-tech{margin-top:10px;gap:6px;}
     .project-tech span{font-size:10px;padding:3px 10px;}
-    .project-links{margin-top:10px;gap:14px 6px;}
-    .project-links a{margin-right:0;font-size:12px;}
+    .project-links{margin-top:12px;gap:16px 10px;}
+    .project-links a{margin-right:0;}
     .dl-widget{margin-left:0;margin-top:2px;}
-    .about-text p{font-size:13px;}
-    .site-footer{flex-direction:column;gap:8px;padding:28px 0 40px;font-size:10px;text-align:center;}
+    .dl-btn{padding:10px 0;margin:-10px 0;}
+    .dl-toggle{padding:10px 8px;margin:-10px -8px;font-size:9px;}
+    .dl-menu{position:fixed;top:auto;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));margin:0;min-width:0;border-radius:12px;z-index:200;box-shadow:0 -4px 30px rgba(0,0,0,.14);}
+    .dl-menu.open{animation:dlSheet .2s ease-out;}
+    .dl-menu::before{content:"选择版本";display:block;padding:12px 16px 8px;font-size:11px;letter-spacing:.15em;color:var(--gray);border-bottom:1px solid var(--line);}
+    .dl-menu button{padding:14px 16px;font-size:14px;}
+    .dl-menu button.active::before{font-size:12px;}
+    .dl-menu .dl-ch{font-size:10px;}
+    .about-text p{font-size:13.5px;}
+    .site-footer{flex-direction:column;align-items:flex-start;gap:8px;padding:26px 0 40px;font-size:10px;}
   }
+  @media(max-width:380px){
+    .wrap{padding:0 16px;}
+    .hero-title{font-size:24px;}
+    .nav-links a{margin-left:10px;}
+    .dl-menu{left:12px;right:12px;}
+  }
+  @keyframes dlSheet{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
