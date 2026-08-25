@@ -33,19 +33,20 @@
   .project-tech span{font-size:11px;letter-spacing:.1em;color:var(--gray);border:1px solid var(--line);padding:4px 12px;border-radius:99px;}
   .project-desc{font-size:13.5px;color:#555;margin-top:14px;line-height:1.9;width:100%;}
   .project-version{font-family:monospace;font-size:11px;color:var(--accent);background:rgba(194,65,12,.06);padding:2px 8px;border-radius:4px;}
-  .project-links{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;}
+  .project-links{margin-top:14px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;width:100%;}
   .project-links a{display:inline-block;font-size:12px;letter-spacing:.2em;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);padding-bottom:2px;margin-right:16px;}
   .project-links a:hover{color:var(--ink);border-color:var(--ink);}
   .about-text p{font-size:14px;color:#555;max-width:640px;margin-bottom:18px;}
   .site-footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:11px;letter-spacing:.25em;color:var(--gray);display:flex;justify-content:space-between;}
-  .dl-widget{display:inline-flex;align-items:flex-start;gap:4px;position:relative;margin-left:10px;vertical-align:bottom;}
+  .dl-widget{display:flex;flex-direction:column;align-items:flex-start;position:relative;margin-left:10px;}
+  .dl-widget-row{display:flex;align-items:center;gap:4px;}
   .dl-btn{background:none;border:none;padding:0;cursor:pointer;text-align:left;font:inherit;}
   .dl-btn:hover .dl-label{color:var(--ink);}
   .dl-label{display:block;font-size:12px;letter-spacing:.2em;color:var(--accent);border-bottom:1px solid var(--accent);padding-bottom:2px;transition:color .3s,border-color .3s;white-space:nowrap;}
-  .dl-ver{display:block;font-family:monospace;font-size:10px;color:var(--gray);margin-top:4px;white-space:nowrap;}
-  .dl-toggle{background:none;border:none;color:var(--gray);cursor:pointer;font-size:8px;padding:4px 2px;transition:color .2s;}
+  .dl-ver{font-family:monospace;font-size:10px;color:var(--gray);margin-top:4px;white-space:nowrap;}
+  .dl-toggle{background:none;border:none;color:var(--gray);cursor:pointer;font-size:8px;padding:2px;transition:color .2s;}
   .dl-toggle:hover{color:var(--accent);}
-  .dl-menu{display:none;position:absolute;top:100%;left:0;margin-top:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);box-shadow:0 6px 20px rgba(0,0,0,.08);z-index:100;overflow:hidden;min-width:150px;}
+  .dl-menu{display:none;position:absolute;top:100%;left:0;margin-top:4px;border:1px solid var(--line);border-radius:6px;background:var(--paper);box-shadow:0 6px 20px rgba(0,0,0,.08);z-index:100;overflow:hidden;min-width:150px;}
   .dl-menu.open{display:block;animation:dlSlide .15s ease-out;}
   .dl-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border:none;background:none;color:var(--ink);font:inherit;font-size:12px;cursor:pointer;text-align:left;transition:background .15s;}
   .dl-menu button:hover{background:rgba(194,65,12,.05);}
@@ -103,7 +104,7 @@
       const ch = d.label.match(/^(正式版|RC|Beta|Alpha)/)?.[1] || '';
       return `<button data-url="${d.url}" data-ver="${ver}" class="${i === 0 ? 'active' : ''}"><span>${ver}</span><span class="dl-ch">${ch}</span></button>`;
     }).join('');
-    return `<div class="dl-widget"><button class="dl-btn" data-url="${first.url}"><span class="dl-label">下载</span><span class="dl-ver">${firstVer}</span></button><button class="dl-toggle">▼</button><div class="dl-menu">${menuHtml}</div></div>`;
+    return `<div class="dl-widget"><div class="dl-widget-row"><button class="dl-btn" data-url="${first.url}"><span class="dl-label">下载</span></button><button class="dl-toggle">▼</button></div><span class="dl-ver">${firstVer}</span><div class="dl-menu">${menuHtml}</div></div>`;
   }
 
   document.addEventListener('click', e => {
