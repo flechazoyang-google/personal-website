@@ -59,11 +59,11 @@
     {
       "id": "blog",
       "name": "妄司逸的博客",
-      "version": "Hexo",
+      "version": "WordPress",
       "type": "Blog",
-      "description": "用 Hexo 从零搭起的技术博客，记录学习路上的构建过程与踩坑笔记：十大排序算法、AI Agent 实践、Linux 与 Windows 命令对比、Scala 编程、Hexo 插件与域名部署。副标题是「学无止尽」。",
+      "description": "基于 WordPress 搭建的技术博客，记录学习路上的构建过程与踩坑笔记：十大排序算法、AI Agent 实践、Linux 与 Windows 命令对比、Scala 编程、博客部署与域名配置。副标题是「学无止尽」。",
       "tech": [
-        "Hexo",
+        "WordPress",
         "Markdown",
         "博客部署",
         "域名 · HTTPS"
@@ -71,7 +71,7 @@
       "links": [
         {
           "label": "访问博客",
-          "url": "https://blog.flechazo.icu"
+          "url": "https://blog.yghsite.cn"
         }
       ]
     }

@@ -46,22 +46,10 @@
   .about-text p{font-size:14px;color:#555;max-width:640px;margin-bottom:18px;}
   .site-footer{padding:40px 0 60px;border-top:1px solid var(--line);font-size:11px;letter-spacing:.25em;color:var(--gray);display:flex;justify-content:space-between;}
   .dl-widget{display:flex;flex-direction:column;align-items:flex-start;position:relative;margin-left:10px;}
-  .dl-widget-row{display:flex;align-items:center;gap:4px;}
+  .dl-widget-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;}
   .dl-btn{background:none;border:none;padding:0;cursor:pointer;text-align:left;font:inherit;}
   .dl-btn:hover .dl-label{color:var(--ink);}
   .dl-label{display:block;font-size:12px;letter-spacing:.2em;color:var(--accent);border-bottom:1px solid var(--accent);padding-bottom:2px;transition:color .3s,border-color .3s;white-space:nowrap;}
-  .dl-ver{font-family:monospace;font-size:10px;color:var(--gray);margin-top:4px;white-space:nowrap;}
-  .dl-toggle{background:none;border:none;color:var(--gray);cursor:pointer;font-size:8px;padding:2px;transition:color .2s;}
-  .dl-toggle:hover{color:var(--accent);}
-  .dl-menu{display:none;position:absolute;top:100%;left:0;margin-top:4px;border:1px solid var(--line);border-radius:6px;background:var(--paper);box-shadow:0 6px 20px rgba(0,0,0,.08);z-index:100;overflow:hidden;min-width:150px;}
-  .dl-menu.open{display:block;animation:dlSlide .15s ease-out;}
-  .dl-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border:none;background:none;color:var(--ink);font:inherit;font-size:12px;cursor:pointer;text-align:left;transition:background .15s;}
-  .dl-menu button:hover{background:rgba(194,65,12,.05);}
-  .dl-menu button.active{color:var(--accent);font-weight:600;}
-  .dl-menu button.active::before{content:"✓";font-size:10px;}
-  .dl-menu button:not(.active)::before{content:"";width:10px;}
-  .dl-menu .dl-ch{font-size:9px;color:var(--gray);font-family:monospace;margin-left:auto;}
-  @keyframes dlSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
   @media(min-width:1000px){
     .wrap{max-width:980px;}
     .hero-section{padding:140px 0 100px;}
@@ -86,8 +74,6 @@
     .nav-links a:hover{color:var(--gray);}
     .project-links a:hover{color:var(--accent);border-color:var(--accent);}
     .dl-btn:hover .dl-label{color:var(--accent);}
-    .dl-toggle:hover{color:var(--gray);}
-    .dl-menu button:hover{background:none;}
   }
   @media(max-width:720px){
     .wrap{padding:0 20px;}
@@ -113,13 +99,6 @@
     .project-links a{margin-right:0;}
     .dl-widget{margin-left:0;margin-top:2px;}
     .dl-btn{padding:10px 0;margin:-10px 0;}
-    .dl-toggle{padding:10px 8px;margin:-10px -8px;font-size:9px;}
-    .dl-menu{position:fixed;top:auto;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));margin:0;min-width:0;border-radius:12px;z-index:200;box-shadow:0 -4px 30px rgba(0,0,0,.14);}
-    .dl-menu.open{animation:dlSheet .2s ease-out;}
-    .dl-menu::before{content:"选择版本";display:block;padding:12px 16px 8px;font-size:11px;letter-spacing:.15em;color:var(--gray);border-bottom:1px solid var(--line);}
-    .dl-menu button{padding:14px 16px;font-size:14px;}
-    .dl-menu button.active::before{font-size:12px;}
-    .dl-menu .dl-ch{font-size:10px;}
     .about-text p{font-size:13.5px;}
     .site-footer{flex-direction:column;align-items:flex-start;gap:8px;padding:26px 0 40px;font-size:10px;}
   }
@@ -127,9 +106,7 @@
     .wrap{padding:0 16px;}
     .hero-title{font-size:24px;}
     .nav-links a{margin-left:10px;}
-    .dl-menu{left:12px;right:12px;}
   }
-  @keyframes dlSheet{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -171,43 +148,17 @@
   function downloadWidget(p) {
     const downloads = (p.links || []).filter(l => l.download);
     if (!downloads.length) return '';
-    const first = downloads[0];
-    const firstVer = first.label.replace(/^(正式版|RC|Beta|Alpha)\s*/, '');
-    let menuHtml = downloads.map((d, i) => {
-      const ver = d.label.replace(/^(正式版|RC|Beta|Alpha)\s*/, '');
-      const ch = d.label.match(/^(正式版|RC|Beta|Alpha)/)?.[1] || '';
-      return `<button data-url="${d.url}" data-ver="${ver}" class="${i === 0 ? 'active' : ''}"><span>${ver}</span><span class="dl-ch">${ch}</span></button>`;
-    }).join('');
-    return `<div class="dl-widget"><div class="dl-widget-row"><button class="dl-btn" data-url="${first.url}"><span class="dl-label">下载</span></button><button class="dl-toggle">▼</button></div><span class="dl-ver">${firstVer}</span><div class="dl-menu">${menuHtml}</div></div>`;
+    const btns = downloads.map(d =>
+      `<button class="dl-btn" data-url="${d.url}"><span class="dl-label">${d.label}</span></button>`
+    ).join('');
+    return `<div class="dl-widget"><div class="dl-widget-row">${btns}</div></div>`;
   }
 
   document.addEventListener('click', e => {
-    const widget = e.target.closest('.dl-widget');
-    if (!widget) {
-      document.querySelectorAll('.dl-menu.open').forEach(m => m.classList.remove('open'));
-      return;
-    }
-    if (e.target.closest('.dl-toggle')) {
+    const btn = e.target.closest('.dl-btn');
+    if (btn) {
       e.preventDefault();
-      document.querySelectorAll('.dl-menu.open').forEach(m => {
-        if (m.closest('.dl-widget') !== widget) m.classList.remove('open');
-      });
-      widget.querySelector('.dl-menu').classList.toggle('open');
-      return;
-    }
-    const item = e.target.closest('.dl-menu button');
-    if (item) {
-      e.stopPropagation();
-      widget.querySelector('.dl-btn').dataset.url = item.dataset.url;
-      widget.querySelector('.dl-ver').textContent = item.dataset.ver;
-      widget.querySelectorAll('.dl-menu button').forEach(b => b.classList.remove('active'));
-      item.classList.add('active');
-      widget.querySelector('.dl-menu').classList.remove('open');
-      return;
-    }
-    if (e.target.closest('.dl-btn')) {
-      e.preventDefault();
-      window.open(widget.querySelector('.dl-btn').dataset.url, '_blank');
+      window.open(btn.dataset.url, '_blank');
     }
   });
 
@@ -226,7 +177,7 @@
 
   function renderHeroStats(d) {
     document.querySelectorAll('[data-bind="hero-stats"]').forEach(el => {
-      el.innerHTML = `<span>专注领域<b>Android · Kotlin</b></span><span>作品数量<b>${d.stats.apps} 应用</b></span><span>博客地址<b>blog.flechazo.icu</b></span>`;
+      el.innerHTML = `<span>专注领域<b>Android · Kotlin</b></span><span>作品数量<b>${d.stats.apps} 应用</b></span><span>博客地址<b>blog.yghsite.cn</b></span>`;
     });
   }
 
@@ -249,20 +200,18 @@
 
   const CDN_RELEASE = 'https://cdn.flechazo.icu/release.json';
 
+  const normVer = v => String(v || '').replace(/^v/i, '');
+
   function mergeRelease(d, release) {
     const coc = d.projects.find(p => p.id === 'coc-war');
     if (!coc || !release) return;
-    const channels = [
-      { key: 'stable', label: '正式版' },
-      { key: 'rc', label: 'RC' },
-      { key: 'beta', label: 'Beta' },
-      { key: 'alpha', label: 'Alpha' }
-    ];
-    if (release.stable) coc.version = release.stable.version;
-    channels.forEach(ch => {
-      const r = release[ch.key];
-      if (r) coc.links.push({ label: `${ch.label} ${r.version}`, url: r.url, download: true });
-    });
+    if (release.stable) {
+      coc.version = normVer(release.stable.version);
+      coc.links.push({ label: `正式版 v${normVer(release.stable.version)}`, url: release.stable.url, download: true });
+    }
+    if (release.beta) {
+      coc.links.push({ label: `Beta v${normVer(release.beta.version)}`, url: release.beta.url, download: true });
+    }
   }
 
   Promise.all([
