@@ -13,7 +13,7 @@
       "id": "coc-war",
       "name": "COC 部落战数据管理工具",
       "type": "Android App",
-      "description": "面向部落冲突（Clash of Clans）首领与管理的战报分析应用。粘贴 JSON 战报即可自动匹配花名册，统计三星率与参战率，未进攻成员一目了然；支持 WebDAV（坚果云）云端备份，换机不丢数据。",
+      "description": "面向部落冲突（Clash of Clans）首领与管理的部落战/联赛数据管理应用。粘贴 CSV 战报或回贴外部 AI 识别结果即可自动匹配花名册，统计三星率、参战率与月度表现，评选最佳成员、公示未进攻人员；支持花名册管理、WebDAV（坚果云）云端同步与悬浮球截屏辅助。",
       "tech": [
         "Kotlin",
         "Jetpack Compose",
