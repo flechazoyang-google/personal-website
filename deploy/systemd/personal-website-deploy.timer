@@ -1,0 +1,12 @@
+[Unit]
+Description=Deploy personal-website every 2 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=personal-website-deploy.service
+
+[Install]
+WantedBy=timers.target

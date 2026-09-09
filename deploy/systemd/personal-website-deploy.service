@@ -1,0 +1,8 @@
+[Unit]
+Description=Pull personal-website from GitHub and sync to web root
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/personal-website-deploy.sh
