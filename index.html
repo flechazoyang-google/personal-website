@@ -198,30 +198,12 @@
     renderFields(d);
   }
 
-  const CDN_RELEASE = 'https://cdn.flechazo.icu/release.json';
-
-  const normVer = v => String(v || '').replace(/^v/i, '');
-
-  function mergeRelease(d, release) {
-    const coc = d.projects.find(p => p.id === 'coc-war');
-    if (!coc || !release) return;
-    if (release.stable) {
-      coc.version = normVer(release.stable.version);
-      coc.links.push({ label: `正式版 v${normVer(release.stable.version)}`, url: release.stable.url, download: true });
-    }
-    if (release.beta) {
-      coc.links.push({ label: `Beta v${normVer(release.beta.version)}`, url: release.beta.url, download: true });
-    }
-  }
-
-  Promise.all([
-    fetch('projects.json').then(r => r.json()),
-    fetch(CDN_RELEASE).then(r => r.json()).catch(() => null)
-  ]).then(([d, release]) => {
-    mergeRelease(d, release);
-    data = d;
-    renderAll(d);
-  }).catch(err => { console.error('Failed to load data:', err); });
+  // 版本号与下载链接全部来自 projects.json（由 scripts/update-projects.js 从 GitHub Releases 同步）。
+  // 旧的七牛云 CDN release.json 已停用，不再拉取。
+  fetch('projects.json')
+    .then(r => r.json())
+    .then(d => { data = d; renderAll(d); })
+    .catch(err => { console.error('Failed to load data:', err); });
 })();
 </script>
 </body>
