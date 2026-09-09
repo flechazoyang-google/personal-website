@@ -20,6 +20,14 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const PROJECTS_FILE = path.join(__dirname, '..', 'projects.json');
 
 const REPOS = {
+  'coc-war': {
+    source: 'github',
+    owner: 'flechazoyang-google',
+    repo: 'coc-war-tool',
+    downloadLabel: '下载最新版',
+    // 只认正式 Release（APK 走 Release 资产直链）；旧 tag 不兜底
+    useTagsFallback: false
+  },
   'toolbox': {
     source: 'github',
     owner: 'flechazoyang-google',
@@ -208,3 +216,4 @@ main().catch(err => {
   console.error('❌ 脚本执行失败:', err);
   process.exit(1);
 });
+
