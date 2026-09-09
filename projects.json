@@ -35,24 +35,29 @@
     {
       "id": "toolbox",
       "name": "Toolbox 工具箱",
-      "version": "v1.4.4",
+      "version": "v1.1.1",
       "type": "Android App",
-      "description": "一款集成 17 种日常工具的 Android 应用：计算器、汇率换算、IP 属地查询、倒数日与纪念日、加密密码箱、九宫格切图、番茄钟、拼豆图纸、Base64、二维码、亲戚称呼计算、经期记录、去水印加水印……常用的小工具，一个 App 全部收好。",
+      "description": "一款本地优先的 Android 工具箱，27 个高频小工具：计算器（括号/百分号/历史）、单位换算、汇率、金额大写、九宫格切图、二维码、图片压缩/拼接/取色/水印、拼豆图纸、Base64、时间戳、文本差异、密码生成器、倒数日（当天提醒）、番茄钟、亲戚称呼（双向）、经期记录（月历预测）、做个决定、手持弹幕、尺子/水平仪/指南针、设备信息，以及 PBKDF2 + AES-256-GCM 加密的密码箱。除汇率外全部离线可用，无广告、无追踪。",
       "tech": [
         "Kotlin",
         "Compose + Material3",
         "Hilt",
-        "Retrofit",
-        "Room"
+        "Room",
+        "DataStore"
       ],
       "links": [
         {
           "label": "查看源码",
-          "url": "https://gitee.com/yang-genhao/tools"
+          "url": "https://github.com/flechazoyang-google/tools"
         },
         {
-          "label": "下载",
-          "url": "https://gitee.com/yang-genhao/tools/releases"
+          "label": "历史版本",
+          "url": "https://github.com/flechazoyang-google/tools/releases"
+        },
+        {
+          "label": "下载最新版",
+          "url": "https://github.com/flechazoyang-google/tools/releases/latest",
+          "download": true
         }
       ]
     },
@@ -88,7 +93,7 @@
   "stats": {
     "apps": "02",
     "appsLabel": "Android 应用",
-    "tools": "17",
+    "tools": "27",
     "toolsLabel": "工具箱内置工具",
     "blog": "ONLINE",
     "blogLabel": "博客持续更新"

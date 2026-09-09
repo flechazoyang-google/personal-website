@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * update-projects.js  v1.2
- * 从 GitHub / Gitee API 拉取最新 release 版本，更新 projects.json
+ * update-projects.js  v1.3
+ * 从 GitHub / Gitee API 拉取最新 release，更新 projects.json 的版本号与下载链接。
+ *
+ * v1.3 变更：
+ *   - toolbox 改为 GitHub 源（flechazoyang-google/tools）
+ *   - GitHub 源改用 /releases/latest，同时解析 APK 资产直链写入下载按钮
  *
  * 用法:
  *   node scripts/update-projects.js            # 正常更新
@@ -17,9 +21,13 @@ const PROJECTS_FILE = path.join(__dirname, '..', 'projects.json');
 
 const REPOS = {
   'toolbox': {
-    source: 'gitee',
-    owner: 'yang-genhao',
-    repo: 'tools'
+    source: 'github',
+    owner: 'flechazoyang-google',
+    repo: 'tools',
+    downloadLabel: '下载最新版',
+    // 旧 tag（v1.2.x / v1.3.x）属于上一代 com.example.toolbox，
+    // 因此不用 tag 兜底，只认正式 Release
+    useTagsFallback: false
   }
 };
 
@@ -34,13 +42,25 @@ async function fetchJSON(url) {
   return res.json();
 }
 
-async function getLatestGitHubRelease(owner, repo) {
+/** 取最新正式 Release：版本号 + APK 资产直链。 */
+async function getLatestGitHubRelease(owner, repo, useTagsFallback = true) {
   try {
     const data = await fetchJSON(
       `https://api.github.com/repos/${owner}/${repo}/releases/latest`
     );
-    if (data.tag_name) return { stable: data.tag_name };
-  } catch (_) {}
+    if (data.tag_name) {
+      const apk = (data.assets || []).find(a => /\.apk$/i.test(a.name || ''));
+      return {
+        stable: data.tag_name,
+        apkUrl: apk ? apk.browser_download_url : null,
+        htmlUrl: data.html_url || null
+      };
+    }
+  } catch (err) {
+    if (!useTagsFallback) return {};
+  }
+
+  if (!useTagsFallback) return {};
 
   const tags = await fetchJSON(
     `https://api.github.com/repos/${owner}/${repo}/tags?per_page=20`
@@ -82,6 +102,21 @@ async function getRepoInfo(source, owner, repo) {
   return { stars: data.stargazers_count || 0, language: data.language || null };
 }
 
+/** 把 APK 直链写进 links：已有 download 链接就更新，否则追加。 */
+function upsertDownloadLink(project, url, label) {
+  if (!url) return false;
+  if (!Array.isArray(project.links)) project.links = [];
+  const existing = project.links.find(l => l && l.download);
+  if (existing) {
+    const changed = existing.url !== url || existing.label !== label;
+    existing.label = label;
+    existing.url = url;
+    return changed;
+  }
+  project.links.push({ label, url, download: true });
+  return true;
+}
+
 async function main() {
   console.log(DRY_RUN ? '[DRY RUN] 模式，不会写入文件\n' : '');
   console.log('=== 开始更新 projects.json ===\n');
@@ -104,20 +139,19 @@ async function main() {
     }
 
     console.log(`📦 ${project.name}`);
+    console.log(`   ${config.source}: ${config.owner}/${config.repo}`);
 
     try {
       let versions = {};
-      let repoInfo = null;
-
-      console.log(`   ${config.source}: ${config.owner}/${config.repo}`);
-
       if (config.source === 'github') {
-        versions = await getLatestGitHubRelease(config.owner, config.repo);
+        versions = await getLatestGitHubRelease(
+          config.owner, config.repo, config.useTagsFallback !== false
+        );
       } else {
         versions = await getGiteeReleases(config.owner, config.repo);
       }
 
-      repoInfo = await getRepoInfo(config.source, config.owner, config.repo);
+      const repoInfo = await getRepoInfo(config.source, config.owner, config.repo);
 
       if (versions.stable) {
         if (versions.stable !== project.version) {
@@ -127,10 +161,21 @@ async function main() {
         } else {
           console.log(`   ✅ 稳定版已是最新: ${versions.stable}`);
         }
+      } else {
+        console.log('   ⚠️  未找到 release 信息（保持原版本号）');
       }
 
-      if (!versions.stable) {
-        console.log(`   ⚠️  未找到 release 信息`);
+      if (versions.apkUrl) {
+        const label = config.downloadLabel || '下载最新版';
+        const changed = upsertDownloadLink(project, versions.apkUrl, label);
+        if (changed) {
+          console.log(`   🔗 下载链接: ${versions.apkUrl}`);
+          changes.push(`${project.name} 下载链接已更新`);
+        } else {
+          console.log('   ✅ 下载链接已是最新');
+        }
+      } else if (config.source === 'github') {
+        console.log('   ⚠️  Release 中没有 .apk 资产，保留原下载链接');
       }
 
       if (repoInfo) {
@@ -152,7 +197,7 @@ async function main() {
   }
 
   if (changes.length > 0) {
-    console.log(`\n📋 变更摘要:`);
+    console.log('\n📋 变更摘要:');
     changes.forEach(c => console.log(`   - ${c}`));
   } else {
     console.log('\n📋 无版本变更');

@@ -1,0 +1,6 @@
+# 本地编辑器 / AI 助手配置
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
