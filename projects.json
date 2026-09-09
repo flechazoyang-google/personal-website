@@ -29,8 +29,14 @@
         {
           "label": "Gitee 仓库",
           "url": "https://gitee.com/yang-genhao/coc-war-tool"
+        },
+        {
+          "label": "下载最新版",
+          "url": "https://github.com/flechazoyang-google/coc-war-tool/releases/download/v4.11.0/COCtools-v4.11.0.apk",
+          "download": true
         }
-      ]
+      ],
+      "version": "v4.11.0"
     },
     {
       "id": "toolbox",
